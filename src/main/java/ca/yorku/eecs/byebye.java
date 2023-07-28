@@ -1,5 +1,0 @@
-package ca.yorku.eecs;
-
-public class byebye {
-//comment
-}
