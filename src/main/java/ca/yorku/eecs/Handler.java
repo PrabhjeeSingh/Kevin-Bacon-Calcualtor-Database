@@ -49,10 +49,8 @@ public class Handler implements HttpHandler {
 		String query = uri.getQuery();
         System.out.println(query);
         //Utils utils=new Utils();
-        Map<String, String> queryParam = Utils.splitQuery(query);
-        System.out.println(queryParam);
-        long first = Long.parseLong(queryParam.get("firstNumber"));
-        long second = Long.parseLong(queryParam.get("secondNumber"));
+        //Map<String, String> queryParam = Utils.splitQuery(query);
+        //System.out.println(queryParam);
 		
 	}
 
@@ -87,8 +85,12 @@ public class Handler implements HttpHandler {
         
         
 	}
-	private void sendString(HttpExchange request, String string, int i) {
+	private void sendString(HttpExchange request, String data, int restCode)throws IOException {
 		// TODO Auto-generated method stub
+		request.sendResponseHeaders(restCode, data.length());
+        OutputStream os = request.getResponseBody();
+        os.write(data.getBytes());
+        os.close();
 		
 	}
 
