@@ -24,14 +24,16 @@ public class Neo4Jdatabase {
 	public boolean hasActor(String actorId) {
         try(Session session = driver.session()){
             Transaction transaction = session.beginTransaction();
-            String query = "MATCH (a: actor) WHERE a.actorId = '" + actorId + "' RETURN a";
+            String query = "MATCH (a: actor) WHERE a.actorId = '" + actorId + "' RETURN a;";
             StatementResult result = transaction.run(query);
-            Boolean alreadyPresent = result.hasNext();
+            
+            boolean actorAlreadyPresent = result.hasNext();
+            
             transaction.success();
             transaction.close();
             session.close();
             
-            return alreadyPresent;
+            return actorAlreadyPresent;
         }
     }
 	
@@ -42,14 +44,16 @@ public class Neo4Jdatabase {
 	public boolean hasMovie(String movieId) {
         try(Session session = driver.session()){
             Transaction transaction = session.beginTransaction();
-            String query = "MATCH (m: movie) WHERE m.movieId = '" + movieId + "' RETURN m";
+            String query = "MATCH (m: movie) WHERE m.movieId = '" + movieId + "' RETURN m;";
             StatementResult result = transaction.run(query);
-            Boolean alreadyPresent = result.hasNext();
+            
+            boolean movieAlreadyPresent = result.hasNext();
+            
             transaction.success();
             transaction.close();
             session.close();
             
-            return alreadyPresent;
+            return movieAlreadyPresent;
         }
     }
 	/*
@@ -57,15 +61,17 @@ public class Neo4Jdatabase {
 	 * If the actor is not present in the database then it returns
 	 * an empty string.
 	 */
-	public String getActor(String actorId) {
+	public String getActorName(String actorId) {
 		 if(hasActor(actorId) == false)
 			 return "";
 	       
 		 try(Session session = driver.session()){
 			 Transaction transaction = session.beginTransaction();
-			 String query = "MATCH (a: actor) WHERE a.actorId = '" + actorId + "' RETURN a.name";
+			 String query = "MATCH (a: actor) WHERE a.actorId = '" + actorId + "' RETURN a.name AS name;";
 			 StatementResult result = transaction.run(query);
-			 String name = result.next().values().get(0).asString();
+			 
+			 String name = result.next().values().get(0).get("name").asString();
+			 
 			 transaction.success();
 			 transaction.close();
 			 session.close();
@@ -84,15 +90,17 @@ public class Neo4Jdatabase {
 	 * If the movie is not present in the database then it returns
 	 * an empty string.
 	 */
-	public String getMovie(String movieId) {
+	public String getMovieName(String movieId) {
 		 if(hasActor(movieId) == false)
 			 return "";
 	       
 		 try(Session session = driver.session()){
 			 Transaction transaction = session.beginTransaction();
-			 String query = "MATCH (m: movie) WHERE m.movieId = '" + movieId + "' RETURN m.name";
+			 String query = "MATCH (m: movie) WHERE m.movieId = '" + movieId + "' RETURN m.name AS name;";
 			 StatementResult result = transaction.run(query);
-			 String name = result.next().values().get(0).asString();
+			 
+			 String name = result.next().values().get(0).get("name").asString();
+			 
 			 transaction.success();
 			 transaction.close();
 			 session.close();
@@ -103,6 +111,52 @@ public class Neo4Jdatabase {
 		 catch(Exception e) {
 			 e.printStackTrace();
 			 return "500 INTERNAL SERVER ERROR";
+		 }
+	}
+	
+	/*
+	 * Returns the list of movies of an actor with given actorId has acted in.
+	 */
+	public List<String> getMoviesOfActor(String actorId){
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query =  "MATCH (a: actor {actorId: '" + actorId + "'})-[:ACTED_IN]->(fof) RETURN DISTINCT fof.movieId AS movieId;";
+			StatementResult result = transaction.run(query);
+			
+			List<String> listOfMovies = new ArrayList<>();
+			
+			while(result.hasNext()) {
+				listOfMovies.add(result.next().values().get(0).get("movieId").toString());
+			}
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			 
+			return listOfMovies;
+		 }
+	}
+	
+	/*
+	 * Returns the list of movies of an actor with given actorId has acted in.
+	 */
+	public List<String> getActorsOfMovie(String movieId){
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query =  "MATCH (m: movie {movieId: '" + movieId + "'})-[:ACTED_IN]->(fof) RETURN DISTINCT fof.actorId AS actorId;";
+			StatementResult result = transaction.run(query);
+			
+			List<String> listOfActors = new ArrayList<>();
+			
+			while(result.hasNext()) {
+				listOfActors.add(result.next().values().get(0).get("actorId").toString());
+			}
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			 
+			return listOfActors;
 		 }
 	}
 }
