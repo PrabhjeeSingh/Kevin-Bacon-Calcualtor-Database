@@ -61,7 +61,8 @@ public class Handler implements HttpHandler {
 		URI uri = request.getRequestURI();
 		String path=uri.getPath();
 		if(path=="/api/v1/getActor") {
-			//Complete
+			String id_num=Utils.getBody(request);
+			
 		}
 		else if(path=="/api/v1/getMovie") {
 			//complete
