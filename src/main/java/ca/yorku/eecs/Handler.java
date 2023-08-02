@@ -48,7 +48,7 @@ public class Handler implements HttpHandler {
 		}
 		String query = uri.getQuery();
         System.out.println(query);
-        //Utils utils=new Utils();
+
         //Map<String, String> queryParam = Utils.splitQuery(query);
         //System.out.println(queryParam);
 		
@@ -78,7 +78,6 @@ public class Handler implements HttpHandler {
 		}
 		String query = uri.getQuery();
         System.out.println(query);
-        //Utils utils=new Utils();
         Map<String, String> queryParam = Utils.splitQuery(query);
         System.out.println(queryParam);
         long first = Long.parseLong(queryParam.get("firstNumber"));

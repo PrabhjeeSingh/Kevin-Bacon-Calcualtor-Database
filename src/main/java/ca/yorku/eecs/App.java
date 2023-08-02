@@ -26,7 +26,7 @@ public class App
 //        		if(met)
 //        	}
 //        });
-        Handler hand =new Handler();
+        Handler hand = new Handler();
         server.createContext("/api/v1", hand::handle);
         System.out.printf("Server started on port %d...\n", PORT);
     }

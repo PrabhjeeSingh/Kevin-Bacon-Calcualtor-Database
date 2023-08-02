@@ -17,9 +17,39 @@ public class Neo4Jdatabase {
 		driver = GraphDatabase.driver(uriDb, AuthTokens.basic("neo4j","12345678"), config);
 	}
 	
-	public void getActor(String id) {
-		try (Session session = driver.session()){
-			
-		}
+	public boolean hasActor(String actorID) {
+        try(Session session = driver.session()){
+            Transaction transaction = session.beginTransaction();
+            String query = "MATCH (a: Actor) WHERE a.id = '" + actorID + "' RETURN a";
+            StatementResult result = transaction.run(query);
+            Boolean alreadyPresent = result.hasNext();
+            transaction.success();
+            transaction.close();
+            session.close();
+            
+            return alreadyPresent;
+        }
+    }
+	
+	public String getActor(String actorID) {
+		 if(hasActor(actorID) == false)
+			 return "";
+	       
+		 try(Session session = driver.session()){
+			 Transaction transaction = session.beginTransaction();
+			 String query = "MATCH (a: Actor) WHERE a.id = '" + actorID + "' RETURN a.Name";
+			 StatementResult result = transaction.run(query);
+			 String name = result.next().values().get(0).asString();
+			 transaction.success();
+			 transaction.close();
+			 session.close();
+			 
+			 return name;
+		 }
+		 
+		 catch(Exception e) {
+			 e.printStackTrace();
+			 return "500 INTERNAL SERVER ERROR";
+		 }
 	}
 }
