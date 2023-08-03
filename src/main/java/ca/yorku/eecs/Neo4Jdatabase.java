@@ -159,4 +159,30 @@ public class Neo4Jdatabase {
 			return listOfActors;
 		 }
 	}
+	
+	/*
+	 * Checks whether the relationship between actor with given actorId
+	 * and movie with given movieId exists or not.
+	 */
+	public String hasRelationship(String actorId, String movieId) {
+		if(!hasActor(actorId) || !hasMovie(movieId))
+			return "404 NOT FOUND";
+		
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query =  "RETURN EXISTS((a: Actor {actorId: '"+ actorId + "'})-[:ACTED_IN]->(m: Movie {movieId: '" + movieId + "'}))";
+			StatementResult result = transaction.run(query);
+			
+			boolean isRelationshipPresent = result.next().values().get(0).asBoolean();
+			
+			if(isRelationshipPresent)
+				return "true";
+			else
+				return "false";
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
+	}
 }

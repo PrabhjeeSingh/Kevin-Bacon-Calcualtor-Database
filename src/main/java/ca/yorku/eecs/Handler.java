@@ -29,7 +29,7 @@ public class Handler implements HttpHandler {
             else {
             	sendString(request, "501 UNIMPLEMENTED METHOD", 501);
             }
-            }
+		}
 		catch (Exception e) {
         	e.printStackTrace();
         	
@@ -56,11 +56,7 @@ public class Handler implements HttpHandler {
 			//if the request is for some PUT feature other than specified in the handout
 			sendString(request, "501 UNIMPLEMENTED METHOD", 501);
 		}
-
-		
 	}
-
-
 
 	private void handleGet(HttpExchange request) throws IOException, JSONException {
 		// TODO Auto-generated method stub
@@ -77,6 +73,7 @@ public class Handler implements HttpHandler {
 		}
 		else if(path.equals("/api/v1/hasRelationship")) {
 			//complete
+			hasRelationshipHandler(request);
 		}
 		else if(path.equals("/api/v1/computeBaconNumber")) {
 			//complete
@@ -135,7 +132,7 @@ public class Handler implements HttpHandler {
 		
 		//if the request is not properly formatted or missing some information
 		else {
-			sendString(request, "404 BAD REQUEST", 404);
+			sendString(request, "400 BAD REQUEST", 400);
 		}
 	}
 	
@@ -184,9 +181,68 @@ public class Handler implements HttpHandler {
 		
 		//if the request is not properly formatted or missing some information
 		else {
-			sendString(request, "404 BAD REQUEST", 404);
+			sendString(request, "400 BAD REQUEST", 400);
 		}
 	}
+	
+	private void hasRelationshipHandler(HttpExchange request) throws IOException, JSONException {
+		//Converting request to String
+		String stringBody = Utils.getBody(request);
+		
+		//Converting String request to query parameters in the form of LinkedHashMap
+		Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		//JSONObject jsonBody = new JSONObject(stringBody);
+		
+		JSONObject jsonFinalResult = new JSONObject();
+		
+		if(mapBody.containsKey("actorId") && mapBody.containsKey("movieId")) {
+			String actorId, movieId;
+			Boolean hasRelationship;
+			
+			//get the actorId from the request body
+			actorId = mapBody.get("actorId").toString();
+			
+			//get the movieId from the request body
+			movieId = mapBody.get("movieId").toString();
+			
+			//call the method from Neo4Jdatabase class to get status of relationship
+			String resultOfhasRelationship = neo4JObject.hasRelationship(actorId, movieId);
+			
+			//if the movieId or actorId doesn't exist
+			if(resultOfhasRelationship.equals("404 NOT FOUND"))
+				sendString(request, "404 NOT FOUND", 404);
+			
+			//if there is server error (Java Exception)
+			else if(resultOfhasRelationship.equals("500 INTERNAL SERVER ERROR"))
+				sendString(request, "500 INTERNAL SERVER ERROR", 500);
+			
+			else {
+				
+				//if there exists the relationship
+				if(resultOfhasRelationship.equals("true"))
+					hasRelationship = true;
+				
+				//if there does not exist the relationship
+				else
+					hasRelationship = false;
+				
+				//add all the data as specified in the handout
+				jsonFinalResult.put("actorId", actorId);
+				jsonFinalResult.put("movieId", movieId);
+				jsonFinalResult.put("hasRelationship", hasRelationship);
+				
+				//send the response of 200 OK along with the result
+				sendString(request, jsonFinalResult.toString(), 200);
+			}
+		}
+		
+		//if the request is not properly formatted or missing some information
+		else {
+			sendString(request, "400 BAD REQUEST", 400);
+		}
+				
+	}
+	
 	private void sendString(HttpExchange request, String data, int restCode) throws IOException {
 		// TODO Auto-generated method stub
 		request.sendResponseHeaders(restCode, data.length());
