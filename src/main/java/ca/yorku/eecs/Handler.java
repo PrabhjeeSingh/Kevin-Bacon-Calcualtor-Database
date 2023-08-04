@@ -1,8 +1,7 @@
 package ca.yorku.eecs;
-import java.io.IOException;
-
 import java.io.*;
 import java.net.*;
+import java.sql.Driver;
 import java.util.*;
 import com.sun.net.httpserver.*;
 import org.json.*;
@@ -241,6 +240,133 @@ public class Handler implements HttpHandler {
 			sendString(request, "400 BAD REQUEST", 400);
 		}
 				
+	}
+	
+	private void addActorHandler(HttpExchange request) throws IOException {
+		//Converting request to String
+		String stringBody = Utils.getBody(request);
+		
+		//Converting String request to query parameters in the form of LinkedHashMap
+		Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		//JSONObject jsonBody = new JSONObject(stringBody);
+		
+		if(mapBody.containsKey("name") && mapBody.containsKey("actorId")) {
+			String name, actorId;
+			
+			//get the name of actor from the request body
+			name = mapBody.get("name").toString();
+			
+			//get the actorId from the request body
+			actorId = mapBody.get("actorId").toString();
+			
+			//call the method from Neo4Jdatabase class to add actor
+			String addActorStatus = neo4JObject.addActor(name, actorId);
+			
+			//if the actorId already exist
+			if(addActorStatus.equals("400 BAD REQUEST"))
+				sendString(request, "400 BAD REQUEST", 400);
+			
+			//if there is server error (Java Exception)
+			else if(addActorStatus.equals("500 INTERNAL SERVER ERROR"))
+				sendString(request, "500 INTERNAL SERVER ERROR", 500);
+			
+			else {
+				
+				//send the response of 200 OK for successful add
+				sendString(request, "200 OK", 200);
+			}
+		}
+		
+		//if the request is not properly formatted or missing some information
+		else {
+			sendString(request, "400 BAD REQUEST", 400);
+		}
+	}
+	
+	private void addMovieHandler(HttpExchange request) throws IOException {
+		//Converting request to String
+		String stringBody = Utils.getBody(request);
+		
+		//Converting String request to query parameters in the form of LinkedHashMap
+		Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		//JSONObject jsonBody = new JSONObject(stringBody);
+		
+		if(mapBody.containsKey("name") && mapBody.containsKey("movieId")) {
+			String name, movieId;
+			
+			//get the name of movie from the request body
+			name = mapBody.get("name").toString();
+			
+			//get the movieId from the request body
+			movieId = mapBody.get("movieId").toString();
+			
+			//call the method from Neo4Jdatabase class to add movie
+			String addMovieStatus = neo4JObject.addMovie(name, movieId);
+			
+			//if the movieId already exist
+			if(addMovieStatus.equals("400 BAD REQUEST"))
+				sendString(request, "400 BAD REQUEST", 400);
+			
+			//if there is server error (Java Exception)
+			else if(addMovieStatus.equals("500 INTERNAL SERVER ERROR"))
+				sendString(request, "500 INTERNAL SERVER ERROR", 500);
+			
+			else {
+				
+				//send the response of 200 OK for successful add
+				sendString(request, "200 OK", 200);
+			}
+		}
+		
+		//if the request is not properly formatted or missing some information
+		else {
+			sendString(request, "400 BAD REQUEST", 400);
+		}
+	}
+	
+	private void addRelationshipHandler(HttpExchange request) throws IOException {
+		//Converting request to String
+		String stringBody = Utils.getBody(request);
+		
+		//Converting String request to query parameters in the form of LinkedHashMap
+		Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		//JSONObject jsonBody = new JSONObject(stringBody);
+		
+		if(mapBody.containsKey("actorId") && mapBody.containsKey("movieId")) {
+			String actorId, movieId;
+			
+			//get the actorId from the request body
+			actorId = mapBody.get("name").toString();
+			
+			//get the movieId from the request body
+			movieId = mapBody.get("movieId").toString();
+			
+			//call the method from Neo4Jdatabase class to add relationship
+			String addRelationShipStatus = neo4JObject.addRelationship(actorId, movieId);
+			
+			//if the relationship already exist
+			if(addRelationShipStatus.equals("400 BAD REQUEST"))
+				sendString(request, "400 BAD REQUEST", 400);
+			
+			//if there is server error (Java Exception)
+			else if(addRelationShipStatus.equals("500 INTERNAL SERVER ERROR"))
+				sendString(request, "500 INTERNAL SERVER ERROR", 500);
+			
+			//if either actorId or movieId does not exist in the database
+			else if(addRelationShipStatus.equals("404 NOT FOUND"))
+				sendString(request, "404 NOT FOUND", 404);
+			
+			else {
+				
+				//send the response of 200 OK for successful add
+				sendString(request, "200 OK", 200);
+			}
+		}
+		
+		//if the request is not properly formatted or missing some information
+		else {
+			sendString(request, "400 BAD REQUEST", 400);
+		}
 	}
 	
 	private void sendString(HttpExchange request, String data, int restCode) throws IOException {

@@ -175,10 +175,97 @@ public class Neo4Jdatabase {
 			
 			boolean isRelationshipPresent = result.next().values().get(0).asBoolean();
 			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
 			if(isRelationshipPresent)
 				return "true";
 			else
 				return "false";
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
+	}
+	
+	/*
+	 * Adds the actor with given name and actorId to the database.
+	 */
+	public String addActor(String name, String actorId) {
+		
+		if(hasActor(actorId))
+			return "400 BAD REQUEST";
+		
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query = "CREATE (a: actor {name: '" + name + "', actorId: '" + actorId + "'});";
+			//StatementResult result = transaction.run(query);
+			transaction.run(query);
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			return "200 OK";
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
+	}
+	
+	/*
+	 * Adds the movie with given name and movieId to the database.
+	 */
+	public String addMovie(String name, String movieId) {
+		
+		if(hasMovie(movieId))
+			return "400 BAD REQUEST";
+		
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query = "CREATE (m: movie {name: '" + name + "', movieId: '" + movieId + "'});";
+			//StatementResult result = transaction.run(query);
+			transaction.run(query);
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			return "200 OK";
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
+	}
+	
+	/*
+	 * Adds the directed relationship of
+	 * actor ACTED_IN movie
+	 * to the database.
+	 */
+	public String addRelationship(String actorId, String movieId) {
+		
+		if(!hasActor(actorId) || !hasMovie(movieId))
+			return "404 NOT FOUND";
+		
+		if(hasRelationship(actorId, movieId).equals("true"))
+			return "400 BAD REQUEST";
+			
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query = "MATCH (a: actor), (m: movie) WHERE a.actorId = '" + actorId + "' AND m.movieId = '" + movieId + "' CREATE (a)-[r:ACTED_IN]->(m);";
+			//StatementResult result = transaction.run(query);
+			transaction.run(query);
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			return "200 OK";
 		}
 		catch(Exception e) {
 			e.printStackTrace();
