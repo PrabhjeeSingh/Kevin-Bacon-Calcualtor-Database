@@ -170,7 +170,7 @@ public class Neo4Jdatabase {
 		
 		try(Session session = driver.session()){
 			Transaction transaction = session.beginTransaction();
-			String query =  "RETURN EXISTS((a: Actor {actorId: '"+ actorId + "'})-[:ACTED_IN]->(m: Movie {movieId: '" + movieId + "'}))";
+			String query =  "RETURN EXISTS((a: actor {actorId: '"+ actorId + "'})-[:ACTED_IN]->(m: movie {movieId: '" + movieId + "'}))";
 			StatementResult result = transaction.run(query);
 			
 			boolean isRelationshipPresent = result.next().values().get(0).asBoolean();
