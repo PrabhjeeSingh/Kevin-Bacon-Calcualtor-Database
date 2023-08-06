@@ -17,29 +17,61 @@ public class Neo4Jdatabase {
 		driver = GraphDatabase.driver(uriDb, AuthTokens.basic("neo4j","12345678"), config);
 	}
 	
-	public boolean hasActor(String actorID) {
+	/*
+	 * Returns true if the actor with given actorId is already present
+	 * in the database otherwise false.
+	 */
+	public boolean hasActor(String actorId) {
         try(Session session = driver.session()){
             Transaction transaction = session.beginTransaction();
-            String query = "MATCH (a: Actor) WHERE a.id = '" + actorID + "' RETURN a";
+            String query = "MATCH (a: actor) WHERE a.actorId = '" + actorId + "' RETURN a;";
             StatementResult result = transaction.run(query);
-            Boolean alreadyPresent = result.hasNext();
+            
+            boolean actorAlreadyPresent = result.hasNext();
+            
             transaction.success();
             transaction.close();
             session.close();
             
-            return alreadyPresent;
+            return actorAlreadyPresent;
         }
     }
 	
-	public String getActor(String actorID) {
-		 if(hasActor(actorID) == false)
+	/*
+	 * Returns true if the movie with given movieId is already present
+	 * in the database otherwise false.
+	 */
+	public boolean hasMovie(String movieId) {
+        try(Session session = driver.session()){
+            Transaction transaction = session.beginTransaction();
+            String query = "MATCH (m: movie) WHERE m.movieId = '" + movieId + "' RETURN m;";
+            StatementResult result = transaction.run(query);
+            
+            boolean movieAlreadyPresent = result.hasNext();
+            
+            transaction.success();
+            transaction.close();
+            session.close();
+            
+            return movieAlreadyPresent;
+        }
+    }
+	/*
+	 * Returns the name of the actor with given actorId as a String.
+	 * If the actor is not present in the database then it returns
+	 * an empty string.
+	 */
+	public String getActorName(String actorId) {
+		 if(hasActor(actorId) == false)
 			 return "";
 	       
 		 try(Session session = driver.session()){
 			 Transaction transaction = session.beginTransaction();
-			 String query = "MATCH (a: Actor) WHERE a.id = '" + actorID + "' RETURN a.Name";
+			 String query = "MATCH (a: actor) WHERE a.actorId = '" + actorId + "' RETURN a.name AS name;";
 			 StatementResult result = transaction.run(query);
-			 String name = result.next().values().get(0).asString();
+			 
+			 String name = result.next().values().get(0).get("name").asString();
+			 
 			 transaction.success();
 			 transaction.close();
 			 session.close();
@@ -51,5 +83,193 @@ public class Neo4Jdatabase {
 			 e.printStackTrace();
 			 return "500 INTERNAL SERVER ERROR";
 		 }
+	}
+	
+	/*
+	 * Returns the name of the movie with given movieId as a String.
+	 * If the movie is not present in the database then it returns
+	 * an empty string.
+	 */
+	public String getMovieName(String movieId) {
+		 if(hasActor(movieId) == false)
+			 return "";
+	       
+		 try(Session session = driver.session()){
+			 Transaction transaction = session.beginTransaction();
+			 String query = "MATCH (m: movie) WHERE m.movieId = '" + movieId + "' RETURN m.name AS name;";
+			 StatementResult result = transaction.run(query);
+			 
+			 String name = result.next().values().get(0).get("name").asString();
+			 
+			 transaction.success();
+			 transaction.close();
+			 session.close();
+			 
+			 return name;
+		 }
+		 
+		 catch(Exception e) {
+			 e.printStackTrace();
+			 return "500 INTERNAL SERVER ERROR";
+		 }
+	}
+	
+	/*
+	 * Returns the list of movies of an actor with given actorId has acted in.
+	 */
+	public List<String> getMoviesOfActor(String actorId){
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query =  "MATCH (a: actor {actorId: '" + actorId + "'})-[:ACTED_IN]->(fof) RETURN DISTINCT fof.movieId AS movieId;";
+			StatementResult result = transaction.run(query);
+			
+			List<String> listOfMovies = new ArrayList<>();
+			
+			while(result.hasNext()) {
+				listOfMovies.add(result.next().values().get(0).get("movieId").toString());
+			}
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			 
+			return listOfMovies;
+		 }
+	}
+	
+	/*
+	 * Returns the list of movies of an actor with given actorId has acted in.
+	 */
+	public List<String> getActorsOfMovie(String movieId){
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query =  "MATCH (m: movie {movieId: '" + movieId + "'})-[:ACTED_IN]->(fof) RETURN DISTINCT fof.actorId AS actorId;";
+			StatementResult result = transaction.run(query);
+			
+			List<String> listOfActors = new ArrayList<>();
+			
+			while(result.hasNext()) {
+				listOfActors.add(result.next().values().get(0).get("actorId").toString());
+			}
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			 
+			return listOfActors;
+		 }
+	}
+	
+	/*
+	 * Checks whether the relationship between actor with given actorId
+	 * and movie with given movieId exists or not.
+	 */
+	public String hasRelationship(String actorId, String movieId) {
+		if(!hasActor(actorId) || !hasMovie(movieId))
+			return "404 NOT FOUND";
+		
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query =  "RETURN EXISTS((a: actor {actorId: '"+ actorId + "'})-[:ACTED_IN]->(m: movie {movieId: '" + movieId + "'}))";
+			StatementResult result = transaction.run(query);
+			
+			boolean isRelationshipPresent = result.next().values().get(0).asBoolean();
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			if(isRelationshipPresent)
+				return "true";
+			else
+				return "false";
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
+	}
+	
+	/*
+	 * Adds the actor with given name and actorId to the database.
+	 */
+	public String addActor(String name, String actorId) {
+		
+		if(hasActor(actorId))
+			return "400 BAD REQUEST";
+		
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query = "CREATE (a: actor {name: '" + name + "', actorId: '" + actorId + "'});";
+			//StatementResult result = transaction.run(query);
+			transaction.run(query);
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			return "200 OK";
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
+	}
+	
+	/*
+	 * Adds the movie with given name and movieId to the database.
+	 */
+	public String addMovie(String name, String movieId) {
+		
+		if(hasMovie(movieId))
+			return "400 BAD REQUEST";
+		
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query = "CREATE (m: movie {name: '" + name + "', movieId: '" + movieId + "'});";
+			//StatementResult result = transaction.run(query);
+			transaction.run(query);
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			return "200 OK";
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
+	}
+	
+	/*
+	 * Adds the directed relationship of
+	 * actor ACTED_IN movie
+	 * to the database.
+	 */
+	public String addRelationship(String actorId, String movieId) {
+		
+		if(!hasActor(actorId) || !hasMovie(movieId))
+			return "404 NOT FOUND";
+		
+		if(hasRelationship(actorId, movieId).equals("true"))
+			return "400 BAD REQUEST";
+			
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query = "MATCH (a: actor), (m: movie) WHERE a.actorId = '" + actorId + "' AND m.movieId = '" + movieId + "' CREATE (a)-[r:ACTED_IN]->(m);";
+			//StatementResult result = transaction.run(query);
+			transaction.run(query);
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			return "200 OK";
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
 	}
 }
