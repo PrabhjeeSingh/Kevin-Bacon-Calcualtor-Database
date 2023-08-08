@@ -46,15 +46,17 @@ public class Neo4Jdatabase {
             Transaction transaction = session.beginTransaction();
             String query = "MATCH (m: movie) WHERE m.movieId = '" + movieId + "' RETURN m;";
             StatementResult result = transaction.run(query);
-            
+            System.out.println("result  = " + result);
             boolean movieAlreadyPresent = result.hasNext();
-            
+            System.out.println("check has next : "+ movieAlreadyPresent);
             transaction.success();
             transaction.close();
             session.close();
             
             return movieAlreadyPresent;
         }
+		
+		
     }
 	/*
 	 * Returns the name of the actor with given actorId as a String.
@@ -70,7 +72,7 @@ public class Neo4Jdatabase {
 			 String query = "MATCH (a: actor) WHERE a.actorId = '" + actorId + "' RETURN a.name AS name;";
 			 StatementResult result = transaction.run(query);
 			 
-			 String name = result.next().values().get(0).get("name").asString();
+			 String name = result.next().get("name").asString();
 			 
 			 transaction.success();
 			 transaction.close();
@@ -91,15 +93,16 @@ public class Neo4Jdatabase {
 	 * an empty string.
 	 */
 	public String getMovieName(String movieId) {
-		 if(hasActor(movieId) == false)
+		 if(hasMovie(movieId) == false)
+		 	{System.out.println("movie not found");
 			 return "";
-	       
+			}
 		 try(Session session = driver.session()){
 			 Transaction transaction = session.beginTransaction();
 			 String query = "MATCH (m: movie) WHERE m.movieId = '" + movieId + "' RETURN m.name AS name;";
 			 StatementResult result = transaction.run(query);
 			 
-			 String name = result.next().values().get(0).get("name").asString();
+			 String name = result.next().get("name").asString();
 			 
 			 transaction.success();
 			 transaction.close();

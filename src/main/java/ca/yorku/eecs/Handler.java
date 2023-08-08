@@ -138,23 +138,32 @@ public class Handler implements HttpHandler {
 	private void getMovieHandler(HttpExchange request) throws IOException, JSONException{
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
-		
+		System.out.println("stringBody = "+stringBody);
+
 		//Converting String request to query parameters in the form of LinkedHashMap
-		Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		JSONObject mapBody = new JSONObject(stringBody);
+		System.out.println("input: " + mapBody);
+		
 		//JSONObject jsonBody = new JSONObject(stringBody);
+		// System.out.println("map object = "+ mapBody);
 		
 		JSONObject jsonFinalResult = new JSONObject();
 		
-		if(mapBody.containsKey("movieId")) {
+		if(mapBody.has("movieId")) {
 			String name, movieId;
 			List<String> listOfActors;
-			
+
+			System.out.print("entered");
 			//get the movieId from the request body
 			movieId = mapBody.get("movieId").toString();
 			
-			//call the method from Neo4Jdatabase class to get movie name
-			name = neo4JObject.getActorName(movieId);
+			System.out.println(movieId);
 			
+			//call the method from Neo4Jdatabase class to get movie name
+			name = neo4JObject.getMovieName(movieId);
+			System.out.println("name"+name);
+
 			//if the movie doesn't exist
 			if(name.equals(""))
 				sendString(request, "404 NOT FOUND", 404);
