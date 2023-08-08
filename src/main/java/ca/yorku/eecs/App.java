@@ -28,6 +28,7 @@ public class App
 //        });
         Handler hand = new Handler();
         server.createContext("/api/v1", hand::handle);
+        server.start();
         System.out.printf("Server started on port %d...\n", PORT);
     }
 }
