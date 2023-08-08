@@ -129,7 +129,7 @@ public class Neo4Jdatabase {
 			List<String> listOfMovies = new ArrayList<>();
 			
 			while(result.hasNext()) {
-				listOfMovies.add(result.next().values().get(0).get("movieId").toString());
+				listOfMovies.add(result.next().get("movieId").toString());
 			}
 			
 			transaction.success();
@@ -152,7 +152,7 @@ public class Neo4Jdatabase {
 			List<String> listOfActors = new ArrayList<>();
 			
 			while(result.hasNext()) {
-				listOfActors.add(result.next().values().get(0).get("actorId").toString());
+				listOfActors.add(result.next().get("actorId").toString());
 			}
 			
 			transaction.success();
@@ -176,7 +176,7 @@ public class Neo4Jdatabase {
 			String query =  "RETURN EXISTS((a: actor {actorId: '"+ actorId + "'})-[:ACTED_IN]->(m: movie {movieId: '" + movieId + "'}))";
 			StatementResult result = transaction.run(query);
 			
-			boolean isRelationshipPresent = result.next().values().get(0).asBoolean();
+			boolean isRelationshipPresent = result.hasNext();
 			
 			transaction.success();
 			transaction.close();

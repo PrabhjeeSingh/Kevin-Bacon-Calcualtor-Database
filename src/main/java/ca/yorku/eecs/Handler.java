@@ -90,18 +90,18 @@ public class Handler implements HttpHandler {
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
 		
-		//Converting String request to query parameters in the form of LinkedHashMap
-		Map<String, String> mapBody = Utils.splitQuery(stringBody);
-		//JSONObject jsonBody = new JSONObject(stringBody);
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
 		
 		JSONObject jsonFinalResult = new JSONObject();
 		
-		if(mapBody.containsKey("actorId")) {
+		if(jsonBody.has("actorId")) {
 			String name, actorId;
 			List<String> listOfMovies;
 			
 			//get the actorId from the request body
-			actorId = mapBody.get("actorId").toString();
+			actorId = jsonBody.get("actorId").toString();
 			
 			//call the method from Neo4Jdatabase class to get actor name
 			name = neo4JObject.getActorName(actorId);
@@ -140,23 +140,22 @@ public class Handler implements HttpHandler {
 		String stringBody = Utils.getBody(request);
 		System.out.println("stringBody = "+stringBody);
 
-		//Converting String request to query parameters in the form of LinkedHashMap
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
 		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
-		JSONObject mapBody = new JSONObject(stringBody);
-		System.out.println("input: " + mapBody);
+		System.out.println("input: " + jsonBody);
 		
-		//JSONObject jsonBody = new JSONObject(stringBody);
 		// System.out.println("map object = "+ mapBody);
 		
 		JSONObject jsonFinalResult = new JSONObject();
 		
-		if(mapBody.has("movieId")) {
+		if(jsonBody.has("movieId")) {
 			String name, movieId;
 			List<String> listOfActors;
 
 			System.out.print("entered");
 			//get the movieId from the request body
-			movieId = mapBody.get("movieId").toString();
+			movieId = jsonBody.get("movieId").toString();
 			
 			System.out.println(movieId);
 			
@@ -197,21 +196,21 @@ public class Handler implements HttpHandler {
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
 		
-		//Converting String request to query parameters in the form of LinkedHashMap
-		Map<String, String> mapBody = Utils.splitQuery(stringBody);
-		//JSONObject jsonBody = new JSONObject(stringBody);
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
 		
 		JSONObject jsonFinalResult = new JSONObject();
 		
-		if(mapBody.containsKey("actorId") && mapBody.containsKey("movieId")) {
+		if(jsonBody.has("actorId") && jsonBody.has("movieId")) {
 			String actorId, movieId;
 			Boolean hasRelationship;
 			
 			//get the actorId from the request body
-			actorId = mapBody.get("actorId").toString();
+			actorId = jsonBody.get("actorId").toString();
 			
 			//get the movieId from the request body
-			movieId = mapBody.get("movieId").toString();
+			movieId = jsonBody.get("movieId").toString();
 			
 			//call the method from Neo4Jdatabase class to get status of relationship
 			String resultOfhasRelationship = neo4JObject.hasRelationship(actorId, movieId);
@@ -251,22 +250,22 @@ public class Handler implements HttpHandler {
 				
 	}
 	
-	private void addActorHandler(HttpExchange request) throws IOException {
+	private void addActorHandler(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
 		
-		//Converting String request to query parameters in the form of LinkedHashMap
-		Map<String, String> mapBody = Utils.splitQuery(stringBody);
-		//JSONObject jsonBody = new JSONObject(stringBody);
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
 		
-		if(mapBody.containsKey("name") && mapBody.containsKey("actorId")) {
+		if(jsonBody.has("name") && jsonBody.has("actorId")) {
 			String name, actorId;
 			
 			//get the name of actor from the request body
-			name = mapBody.get("name").toString();
+			name = jsonBody.get("name").toString();
 			
 			//get the actorId from the request body
-			actorId = mapBody.get("actorId").toString();
+			actorId = jsonBody.get("actorId").toString();
 			
 			//call the method from Neo4Jdatabase class to add actor
 			String addActorStatus = neo4JObject.addActor(name, actorId);
@@ -292,22 +291,22 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
-	private void addMovieHandler(HttpExchange request) throws IOException {
+	private void addMovieHandler(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
 		
-		//Converting String request to query parameters in the form of LinkedHashMap
-		Map<String, String> mapBody = Utils.splitQuery(stringBody);
-		//JSONObject jsonBody = new JSONObject(stringBody);
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
 		
-		if(mapBody.containsKey("name") && mapBody.containsKey("movieId")) {
+		if(jsonBody.has("name") && jsonBody.has("movieId")) {
 			String name, movieId;
 			
 			//get the name of movie from the request body
-			name = mapBody.get("name").toString();
+			name = jsonBody.get("name").toString();
 			
 			//get the movieId from the request body
-			movieId = mapBody.get("movieId").toString();
+			movieId = jsonBody.get("movieId").toString();
 			
 			//call the method from Neo4Jdatabase class to add movie
 			String addMovieStatus = neo4JObject.addMovie(name, movieId);
@@ -333,22 +332,23 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
-	private void addRelationshipHandler(HttpExchange request) throws IOException {
+	private void addRelationshipHandler(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
 		
-		//Converting String request to query parameters in the form of LinkedHashMap
-		Map<String, String> mapBody = Utils.splitQuery(stringBody);
-		//JSONObject jsonBody = new JSONObject(stringBody);
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
 		
-		if(mapBody.containsKey("actorId") && mapBody.containsKey("movieId")) {
+		
+		if(jsonBody.has("actorId") && jsonBody.has("movieId")) {
 			String actorId, movieId;
 			
 			//get the actorId from the request body
-			actorId = mapBody.get("name").toString();
+			actorId = jsonBody.get("name").toString();
 			
 			//get the movieId from the request body
-			movieId = mapBody.get("movieId").toString();
+			movieId = jsonBody.get("movieId").toString();
 			
 			//call the method from Neo4Jdatabase class to add relationship
 			String addRelationShipStatus = neo4JObject.addRelationship(actorId, movieId);
