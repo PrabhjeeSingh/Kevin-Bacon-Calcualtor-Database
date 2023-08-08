@@ -129,7 +129,7 @@ public class Neo4Jdatabase {
 			List<String> listOfMovies = new ArrayList<>();
 			
 			while(result.hasNext()) {
-				listOfMovies.add(result.next().get("movieId").toString());
+				listOfMovies.add(result.next().get("movieId").asString());
 			}
 			
 			transaction.success();
@@ -152,7 +152,7 @@ public class Neo4Jdatabase {
 			List<String> listOfActors = new ArrayList<>();
 			
 			while(result.hasNext()) {
-				listOfActors.add(result.next().get("actorId").toString());
+				listOfActors.add(result.next().get("actorId").asString());
 			}
 			
 			transaction.success();
