@@ -146,7 +146,7 @@ public class Neo4Jdatabase {
 	public List<String> getActorsOfMovie(String movieId){
 		try(Session session = driver.session()){
 			Transaction transaction = session.beginTransaction();
-			String query =  "MATCH (m: movie {movieId: '" + movieId + "'})-[:ACTED_IN]->(fof) RETURN DISTINCT fof.actorId AS actorId;";
+			String query =  "MATCH (a: actor)-[:ACTED_IN]->(m: movie {movieId : '" + movieId + "'}) RETURN DISTINCT a.actorId AS actorId;";
 			StatementResult result = transaction.run(query);
 			
 			List<String> listOfActors = new ArrayList<>();
@@ -173,10 +173,10 @@ public class Neo4Jdatabase {
 		
 		try(Session session = driver.session()){
 			Transaction transaction = session.beginTransaction();
-			String query =  "RETURN EXISTS((a: actor {actorId: '"+ actorId + "'})-[:ACTED_IN]->(m: movie {movieId: '" + movieId + "'}))";
+			String query =  "MATCH (a: actor {actorId: '"+ actorId + "'})-[:ACTED_IN]->(m: movie {movieId: '" + movieId + "'}) RETURN EXISTS((a)-[:ACTED_IN]->(m));";
 			StatementResult result = transaction.run(query);
 			
-			boolean isRelationshipPresent = result.hasNext();
+			boolean isRelationshipPresent = result.next().get(0).asBoolean();
 			
 			transaction.success();
 			transaction.close();
