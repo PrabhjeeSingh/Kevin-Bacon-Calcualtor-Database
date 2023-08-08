@@ -41,20 +41,30 @@ public class Handler implements HttpHandler {
 		// TODO Auto-generated method stub
 		URI uri = request.getRequestURI();
 		String path = uri.getPath();
-		
+		try {
 		if(path.equals("/api/v1/addActor")) {
+			addActorHandler(request);
 			//Complete
 		}
 		else if(path.equals("/api/v1/addMovie")) {
+			addMovieHandler(request);
 			//complete
 		}
 		else if(path.equals("/api/v1/addRelationship")) {
+			addRelationshipHandler(request);
 			//complete
 		}
 		else {
 			//if the request is for some PUT feature other than specified in the handout
 			sendString(request, "501 UNIMPLEMENTED METHOD", 501);
 		}
+	}
+		catch (Exception e) {
+        	e.printStackTrace();
+        	
+        	//if there is server error
+        	sendString(request, "500 INTERNAL SERVER ERROR", 500);
+        }
 	}
 
 	private void handleGet(HttpExchange request) throws IOException, JSONException {
@@ -75,6 +85,7 @@ public class Handler implements HttpHandler {
 			hasRelationshipHandler(request);
 		}
 		else if(path.equals("/api/v1/computeBaconNumber")) {
+			
 			//complete
 		}
 		else if(path.equals("/api/v1/computeBaconPath")) {
@@ -346,7 +357,7 @@ public class Handler implements HttpHandler {
 			String actorId, movieId;
 			
 			//get the actorId from the request body
-			actorId = jsonBody.get("name").toString();
+			actorId = jsonBody.get("actorId").toString();
 			
 			//get the movieId from the request body
 			movieId = jsonBody.get("movieId").toString();
