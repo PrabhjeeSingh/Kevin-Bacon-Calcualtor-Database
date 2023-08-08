@@ -46,9 +46,9 @@ public class Neo4Jdatabase {
             Transaction transaction = session.beginTransaction();
             String query = "MATCH (m: movie) WHERE m.movieId = '" + movieId + "' RETURN m;";
             StatementResult result = transaction.run(query);
-            System.out.println("result  = " + result);
+            //System.out.println("result  = " + result);
             boolean movieAlreadyPresent = result.hasNext();
-            System.out.println("check has next : "+ movieAlreadyPresent);
+            //System.out.println("check has next : "+ movieAlreadyPresent);
             transaction.success();
             transaction.close();
             session.close();
@@ -93,10 +93,10 @@ public class Neo4Jdatabase {
 	 * an empty string.
 	 */
 	public String getMovieName(String movieId) {
-		 if(hasMovie(movieId) == false)
-		 	{System.out.println("movie not found");
+		 if(hasMovie(movieId) == false) {
+		 	//System.out.println("movie not found");
 			 return "";
-			}
+		 }
 		 try(Session session = driver.session()){
 			 Transaction transaction = session.beginTransaction();
 			 String query = "MATCH (m: movie) WHERE m.movieId = '" + movieId + "' RETURN m.name AS name;";
