@@ -275,4 +275,33 @@ public class Neo4Jdatabase {
 			return "500 INTERNAL SERVER ERROR";
 		}
 	}
+	
+	/*
+	 * Computes the bacon number of the actor with given actorId
+	 * with respect to Kevin Bacon with actorId "nm0000102".
+	 */
+	public String computeBaconNumber(String actorId) {
+		if(!hasActor(actorId))
+			return "404 NOT FOUND";
+		
+		if(actorId.equals("nm0000102"))
+			return "0";
+		
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query = "MATCH path = shortestPath((kb: actor {actorId: 'nm0000102'})-[*]-(a: actor {actorId: '" + actorId +"'})) RETURN length(path) AS baconNumber;";
+			StatementResult result = transaction.run(query);
+			
+			String baconNumber = result.next().get("baconNumber").asString();
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			return baconNumber;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
+	}
 }

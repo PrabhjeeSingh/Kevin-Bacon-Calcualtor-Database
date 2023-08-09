@@ -85,8 +85,8 @@ public class Handler implements HttpHandler {
 			hasRelationshipHandler(request);
 		}
 		else if(path.equals("/api/v1/computeBaconNumber")) {
-			
 			//complete
+			computeBaconNumberHandler(request);
 		}
 		else if(path.equals("/api/v1/computeBaconPath")) {
 			//complete
@@ -381,6 +381,57 @@ public class Handler implements HttpHandler {
 				
 				//send the response of 200 OK for successful add
 				sendString(request, "200 OK", 200);
+			}
+		}
+		
+		//if the request is not properly formatted or missing some information
+		else {
+			sendString(request, "400 BAD REQUEST", 400);
+		}
+	}
+	
+	private void computeBaconNumberHandler(HttpExchange request) throws IOException, JSONException {
+		//Converting request to String
+		String stringBody = Utils.getBody(request);
+		
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		
+		JSONObject jsonFinalResult = new JSONObject();
+		
+		if(jsonBody.has("actorId")) {
+			String actorId, baconNumberString;
+			int baconNumber;
+			
+			//get the actorId from the request body
+			actorId = jsonBody.get("actorId").toString();
+			
+			//call the method from Neo4Jdatabase class to get bacon number
+			baconNumberString = neo4JObject.computeBaconNumber(actorId);
+			
+			//if the actor doesn't exist
+			if(baconNumberString.equals("404 NOT FOUND"))
+				sendString(request, "404 NOT FOUND", 404);
+			
+			//if there is server error (Java Exception)
+			else if(baconNumberString.equals("500 INTERNAL SERVER ERROR"))
+				sendString(request, "500 INTERNAL SERVER ERROR", 500);
+			
+			else {
+				
+				//if actorId given is of Kevin Bacon itself
+				if(baconNumberString.equals("0"))
+					baconNumber = 0;
+				
+				else
+					baconNumber = Integer.parseInt(baconNumberString);
+				
+				//add all the data as specified in the handout
+				jsonFinalResult.put("baconNumber", baconNumber);
+				
+				//send the response of 200 OK along with the result
+				sendString(request, jsonFinalResult.toString(), 200);
 			}
 		}
 		
