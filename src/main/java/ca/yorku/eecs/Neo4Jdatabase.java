@@ -289,7 +289,7 @@ public class Neo4Jdatabase {
 		
 		try(Session session = driver.session()){
 			Transaction transaction = session.beginTransaction();
-			String query = "MATCH path = shortestPath((kb: actor {actorId: 'nm0000102'})-[*]-(a: actor {actorId: '" + actorId +"'})) RETURN length(path) AS baconNumber;";
+			String query = "MATCH path = shortestPath((kb: actor {actorId: 'nm0000102'})-[*]-(a: actor {actorId: '" + actorId +"'})) RETURN length(path)/2 AS baconNumber;";
 			StatementResult result = transaction.run(query);
 			
 			String baconNumber = result.next().get("baconNumber").asString();
