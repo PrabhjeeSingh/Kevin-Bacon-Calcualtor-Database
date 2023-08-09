@@ -1,6 +1,7 @@
 package ca.yorku.eecs;
 import com.sun.net.httpserver.*;
 import org.neo4j.driver.v1.*;
+import org.neo4j.driver.v1.Record;
 import org.json.*;
 import java.net.*;
 import java.util.*;
@@ -292,16 +293,60 @@ public class Neo4Jdatabase {
 			String query = "MATCH path = shortestPath((kb: actor {actorId: 'nm0000102'})-[*]-(a: actor {actorId: '" + actorId +"'})) RETURN length(path)/2 AS baconNumber;";
 			StatementResult result = transaction.run(query);
 			
-			String baconNumber = result.next().get("baconNumber").asString();
+			int baconNumber = result.next().get("baconNumber").asInt();
 			transaction.success();
 			transaction.close();
 			session.close();
 			
-			return baconNumber;
+			return baconNumber + "";
 		}
 		catch(Exception e) {
 			e.printStackTrace();
 			return "500 INTERNAL SERVER ERROR";
+		}
+	}
+	
+	/*
+	 * Computes the bacon path of the actor with given actorId
+	 * with respect to Kevin Bacon with actorId "nm0000102".
+	 */
+	public List<String> computeBaconPath(String actorId){
+		if(!hasActor(actorId))
+			return new ArrayList<>(Arrays.asList(new String[]{"404 NOT FOUND"}));
+		
+		if(actorId.equals("nm0000102"))
+			return new ArrayList<>(Arrays.asList(new String[] {"nm0000102"}));
+		 
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query = "MATCH path = shortestPath((kb: actor {actorId: 'nm0000102'})-[*]-(a: actor {actorId: '" + actorId +"'})) RETURN nodes(path) AS path";
+			StatementResult result = transaction.run(query);
+			
+			//List<Object> pathObject = result.next().get("path").asList();
+			List<String> baconPath = new ArrayList<>();
+	
+			List<Object> pathObject = result.next().get("path").asList();
+			
+			for(Object value : pathObject) {
+				Map<String, Object> properties = ((Value) value).asMap();
+				
+				if(properties.containsKey("actorId")) {
+					baconPath.add(String.valueOf(properties.get("actorId")));
+				}
+				else if(properties.containsKey("movieId")) {
+					baconPath.add(String.valueOf(properties.get("movieId")));
+				}
+			}
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			return baconPath;
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return new ArrayList<>(Arrays.asList(new String[]{"500 INTERNAL SERVER ERROR"}));
 		}
 	}
 }

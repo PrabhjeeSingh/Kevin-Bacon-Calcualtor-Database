@@ -90,6 +90,7 @@ public class Handler implements HttpHandler {
 		}
 		else if(path.equals("/api/v1/computeBaconPath")) {
 			//complete
+			computeBaconPathHandler(request);
 		}
 		else {
 			//if the request is for some GET feature other than specified in the handout
@@ -441,6 +442,49 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
+	private void computeBaconPathHandler(HttpExchange request) throws IOException, JSONException {
+		//Converting request to String
+		String stringBody = Utils.getBody(request);
+		
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		
+		JSONObject jsonFinalResult = new JSONObject();
+		
+		if(jsonBody.has("actorId")) {
+			String actorId;
+			List<String> baconPath;
+			
+			//get the actorId from the request body
+			actorId = jsonBody.get("actorId").toString();
+			
+			//call the method from Neo4Jdatabase class to get bacon path
+			baconPath = neo4JObject.computeBaconPath(actorId);
+			
+			//if the actor doesn't exist
+			if(baconPath.get(0).equals("404 NOT FOUND"))
+				sendString(request, "404 NOT FOUND", 404);
+			
+			//if there is server error (Java Exception)
+			else if(baconPath.get(0).equals("500 INTERNAL SERVER ERROR"))
+				sendString(request, "500 INTERNAL SERVER ERROR", 500);
+			
+			else {
+				
+				//add all the data as specified in the handout
+				jsonFinalResult.put("baconPath", baconPath);
+				
+				//send the response of 200 OK along with the result
+				sendString(request, jsonFinalResult.toString(), 200);
+			}
+		}
+		
+		//if the request is not properly formatted or missing some information
+		else {
+			sendString(request, "400 BAD REQUEST", 400);
+		}
+	}
 	private void sendString(HttpExchange request, String data, int restCode) throws IOException {
 		// TODO Auto-generated method stub
 		request.sendResponseHeaders(restCode, data.length());
