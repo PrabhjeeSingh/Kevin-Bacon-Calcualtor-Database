@@ -2,6 +2,7 @@ package ca.yorku.eecs;
 import com.sun.net.httpserver.*;
 import org.neo4j.driver.v1.*;
 import org.neo4j.driver.v1.Record;
+import org.neo4j.driver.v1.types.Node;
 import org.json.*;
 import java.net.*;
 import java.util.*;
@@ -325,16 +326,16 @@ public class Neo4Jdatabase {
 			//List<Object> pathObject = result.next().get("path").asList();
 			List<String> baconPath = new ArrayList<>();
 	
-			List<Object> pathObject = result.next().get("path").asList();
+			List<Node> pathNode = result.next().get("path").asList(Value::asNode);
 			
-			for(Object value : pathObject) {
-				Map<String, Object> properties = ((Value) value).asMap();
+			for(Node data_entity : pathNode) {
+				//Map<String, Object> properties = ((Value) value).asMap();
 				
-				if(properties.containsKey("actorId")) {
-					baconPath.add(String.valueOf(properties.get("actorId")));
+				if(data_entity.hasLabel("actor")) {
+					baconPath.add(data_entity.get("actorId").asString());
 				}
-				else if(properties.containsKey("movieId")) {
-					baconPath.add(String.valueOf(properties.get("movieId")));
+				else if(data_entity.hasLabel("movie")) {
+					baconPath.add(data_entity.get("movieId").asString());
 				}
 			}
 			
