@@ -59,3 +59,15 @@ Expected Response:
 400 BAD REQUEST - If the request body is improperly formatted or missing required information
 404 NOT FOUND - If there is no year in the database that exists
 500 INTERNAL SERVER ERROR - If save or add was unsuccessful (Java Exception Thrown)
+
+
+Information about the testing - 
+
+addYearPass - 200
+addYearFail - 400
+addYearToMoviePass - 200
+addYearToMovieFail - 400
+hasRelationshipBtwMovieYearPass - 200
+hasRelationshipBtwMovieYearFail - 400, 404
+getMoviesOfYearPass - 200
+getMoviesOfYearFail - 200, 404
