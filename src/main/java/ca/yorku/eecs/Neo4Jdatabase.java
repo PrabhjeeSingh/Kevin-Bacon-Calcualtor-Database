@@ -350,4 +350,144 @@ public class Neo4Jdatabase {
 			return new ArrayList<>(Arrays.asList(new String[]{"500 INTERNAL SERVER ERROR"}));
 		}
 	}
+	
+	//METHODS FOR NEW FEATURE STARTS FROM HERE.
+	
+	/*
+	 * Returns true if the year node with given value (year) is already present
+	 * in the database otherwise false.
+	 */
+	public boolean hasYear(String value) {
+        try(Session session = driver.session()){
+            Transaction transaction = session.beginTransaction();
+            String query = "MATCH (y: year) WHERE y.value = '" + value + "' RETURN y;";
+            StatementResult result = transaction.run(query);
+            
+            boolean yearAlreadyPresent = result.hasNext();
+            
+            transaction.success();
+            transaction.close();
+            session.close();
+            
+            return yearAlreadyPresent;
+        }
+    }
+	
+	/*
+	 * Checks whether the relationship between movie with given movieId
+	 * and year node with given value (year) exists or not.
+	 */
+	public String hasRelationshipBtwnMovieYear(String movieId, String value) {
+		if(!hasMovie(movieId) || !hasYear(value))
+			return "404 NOT FOUND";
+		
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query =  "MATCH (m: movie {movieId: '"+ movieId + "'})-[:RELEASED_IN]->(y: year {value: '" + value + "'}) RETURN EXISTS((m)-[:RELEASED_IN]->(y));";
+			StatementResult result = transaction.run(query);
+			
+			boolean isRelationshipPresent = result.next().get(0).asBoolean();
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			if(isRelationshipPresent)
+				return "true";
+			else
+				return "false";
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
+	}
+	
+	/*
+	 * Adds the year node with given value (year) to the database.
+	 */
+	public String addYear(String value) {
+		
+		if(hasYear(value))
+			return "400 BAD REQUEST";
+		
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query = "CREATE (y: year {value: '" + value + "'});";
+			//StatementResult result = transaction.run(query);
+			transaction.run(query);
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			return "200 OK";
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
+	}
+	
+	/*
+	 * Adds the directed relationship of
+	 * movie RELEASED_IN year
+	 * to the database.
+	 */
+	public String addRelationshipBtwnMovieYear(String movieId, String value) {
+		
+		if(!hasMovie(movieId) || !hasYear(value))
+			return "404 NOT FOUND";
+		
+		if(hasRelationshipBtwnMovieYear(movieId, value).equals("true"))
+			return "400 BAD REQUEST";
+			
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query = "MATCH (m: movie), (y: year) WHERE m.movieId = '" + movieId + "' AND y.value = '" + value + "' CREATE (m)-[rmy:RELEASED_IN]->(y);";
+			//StatementResult result = transaction.run(query);
+			transaction.run(query);
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			
+			return "200 OK";
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+			return "500 INTERNAL SERVER ERROR";
+		}
+	}
+	
+	/*
+	 * Returns the list of movies released on a specific year.
+	 */
+	public List<String> getMoviesOfYear(String value){
+		if(!hasYear(value))
+			return new ArrayList<>(Arrays.asList(new String[] {"404 NOT FOUND"}));
+		
+		try(Session session = driver.session()){
+			Transaction transaction = session.beginTransaction();
+			String query =  "MATCH (m: movie)-[:RELEASED_IN]->(y: year {value : '" + value + "'}) RETURN DISTINCT m.movieId AS movieId;";
+			StatementResult result = transaction.run(query);
+			
+			List<String> listOfMovies = new ArrayList<>();
+			
+			while(result.hasNext()) {
+				listOfMovies.add(result.next().get("movieId").asString());
+			}
+			
+			transaction.success();
+			transaction.close();
+			session.close();
+			 
+			return listOfMovies;
+		 }
+		catch(Exception e) {
+			e.printStackTrace();
+			return new ArrayList<>(Arrays.asList(new String[] {"500 INTERNAL SERVER ERROR"}));
+		}
+	}
+	
 }
