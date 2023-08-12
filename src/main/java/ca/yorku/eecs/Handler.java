@@ -54,6 +54,25 @@ public class Handler implements HttpHandler {
 			addRelationshipHandler(request);
 			//complete
 		}
+		
+		
+		//
+		//
+		//added today
+		else if(path.equals("/api/v1/addYear")) {
+			addYearHandler(request);
+			//complete
+		}
+		
+		else if(path.equals("/api/v1/addYearToMovie")) {
+			addRelationOfYear(request);
+			//complete
+		}
+		//
+		//
+		//
+		
+		
 		else {
 			//if the request is for some PUT feature other than specified in the handout
 			sendString(request, "501 UNIMPLEMENTED METHOD", 501);
@@ -91,6 +110,14 @@ public class Handler implements HttpHandler {
 		else if(path.equals("/api/v1/computeBaconPath")) {
 			//complete
 			computeBaconPathHandler(request);
+		}
+		else if(path.equals("/api/v1/hasRelationshipBtwMovieYear")) {
+			//complete
+			hasRelationshipOfYearHandler(request);
+		}
+		else if(path.equals("/api/v1/getMoviesOfYear")) {
+			//complete
+			getMovieList(request);
 		}
 		else {
 			//if the request is for some GET feature other than specified in the handout
@@ -485,6 +512,201 @@ public class Handler implements HttpHandler {
 			sendString(request, "400 BAD REQUEST", 400);
 		}
 	}
+	
+	
+	//the request of put related to year is handled here
+	private void addYearHandler(HttpExchange request) throws IOException, JSONException {
+		//Converting request to String
+		String stringBody = Utils.getBody(request);
+		
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		
+		if(jsonBody.has("year")) {
+			String year;
+			
+			//getting the year from the json body 
+			year = jsonBody.get("year").toString();
+	
+			
+			//calling the addYear of the neo4Jdatabse to add the year into the system
+			String addYearStatus = neo4JObject.addYear(year);
+			
+			//If the year has already been added to the system then the 400 bad request
+			if(addYearStatus.equals("400 BAD REQUEST"))
+				sendString(request, "400 BAD REQUEST", 400);
+			
+			//if the java exception was encountered then the 500 internal server 
+			else if(addYearStatus.equals("500 INTERNAL SERVER ERROR"))
+				sendString(request, "500 INTERNAL SERVER ERROR", 500);
+			
+			else {
+				
+				//if the year was successfully added to the database then the 200 code
+				sendString(request, "200 OK", 200);
+			}
+		}
+		
+		//if in the api the information was wrongly inputed or not provided 
+		else {
+			sendString(request, "400 BAD REQUEST", 400);
+		}
+	}
+	
+	//the request of put related to the relationship of year with movie is handled here
+	private void addRelationOfYear(HttpExchange request) throws IOException, JSONException {
+		//Converting request to String
+		String stringBody = Utils.getBody(request);
+		
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		
+		
+		if(jsonBody.has("year") && jsonBody.has("movieId")) {
+			String year, movieId;
+			
+			//getting the year from the json body for which the relationship has to be made
+			year = jsonBody.get("year").toString();
+			
+			//getting the id  of the movie from the json body for which the relationship has to be made
+			movieId = jsonBody.get("movieId").toString();
+			
+			//the addRelationshipBtwnMovieYear of the database class is called to add the relationship
+			String addRelationShipOfMovieYearStatus = neo4JObject.addRelationshipBtwnMovieYear(movieId,year);
+			
+			//if the relationship between the movie and the year already exists then the 400 bad request 
+			if(addRelationShipOfMovieYearStatus.equals("400 BAD REQUEST"))
+				sendString(request, "400 BAD REQUEST", 400);
+			
+			//if the java exception was encountered then the 500 internal server error
+			else if(addRelationShipOfMovieYearStatus.equals("500 INTERNAL SERVER ERROR"))
+				sendString(request, "500 INTERNAL SERVER ERROR", 500);
+			
+			//if the year or the movie id was not added to the database before adding the relationship then 404 not found
+			else if(addRelationShipOfMovieYearStatus.equals("404 NOT FOUND"))
+				sendString(request, "404 NOT FOUND", 404);
+			
+			else {
+				
+				//if the relationship was made then the 200 code
+				sendString(request, "200 OK", 200);
+			}
+		}
+		
+		//if there was something missing or wrongly formatted in the request then 400 bad request
+		else {
+			sendString(request, "400 BAD REQUEST", 400);
+		}
+	}
+
+	
+	//This method is to handle the request where we want to see if a particular movie is "Released_IN" particular year 
+	private void hasRelationshipOfYearHandler(HttpExchange request) throws IOException, JSONException {
+		//Converting request to String
+		String stringBody = Utils.getBody(request);
+		
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		
+		JSONObject jsonFinalResult = new JSONObject();
+		
+		if(jsonBody.has("year") && jsonBody.has("movieId")) {
+			String year, movieId;
+			Boolean hasRelationship;
+			
+			//getting the year for which we want to check the relationship
+			year = jsonBody.get("year").toString();
+			
+			//get the movieId from the request body
+			movieId = jsonBody.get("movieId").toString();
+			
+			//call9ing the hasRelationshipBtwnMovieYear method of the database class to check if the movie was "Released_IN" the particular year
+			String resultOfStatus = neo4JObject.hasRelationshipBtwnMovieYear(movieId, year);
+			
+			//if the year and the movie does not exists in the databse for which we want to check the relationship then 404 not found
+			if(resultOfStatus.equals("404 NOT FOUND"))
+				sendString(request, "404 NOT FOUND", 404);
+			
+			//if the java exception was encountered then the 500 internal server error
+			else if(resultOfStatus.equals("500 INTERNAL SERVER ERROR"))
+				sendString(request, "500 INTERNAL SERVER ERROR", 500);
+			
+			else {
+				
+				//if the movie was released in the particular year then true 
+				if(resultOfStatus.equals("true"))
+					hasRelationship = true;
+				
+				//if the movie was not released in the particular year
+				else
+					hasRelationship = false;
+				
+				//adding the year, movie and the status of the relationship between them
+				jsonFinalResult.put("year", year);
+				jsonFinalResult.put("movieId", movieId);
+				jsonFinalResult.put("hasRelationship", hasRelationship);
+				
+				//the final output with the 200 code is sent
+				sendString(request, jsonFinalResult.toString(), 200);
+			}
+		}
+		
+		//if there was something missing or wrongly formatted in the request then 400 bad request
+		else {
+			sendString(request, "400 BAD REQUEST", 400);
+		}
+				
+	}
+	
+
+	//this method is to get the list of movies which were released in the particular year 
+	private void getMovieList(HttpExchange request) throws IOException, JSONException {
+		//Converting request to String
+		String stringBody = Utils.getBody(request);
+		
+		//Converting String request to query parameters in the form of JSONObject
+		JSONObject jsonBody = new JSONObject(stringBody);
+		//Map<String, String> mapBody = Utils.splitQuery(stringBody);
+		
+		JSONObject jsonFinalResult = new JSONObject();
+		
+		if(jsonBody.has("year")) {
+			String year;
+			List<String> MovieList;
+			
+			//getting the year from the json body for which the list of movies has to be given
+			year = jsonBody.get("year").toString();
+			
+			//calling the getMoviesOfYear method of the database class
+			MovieList = neo4JObject.getMoviesOfYear(year);
+			
+			//if the year for which we want the list of movies is not present in the database then the 404 not found
+			if(MovieList.get(0).equals("404 NOT FOUND"))
+				sendString(request, "404 NOT FOUND", 404);
+			
+			//if the java exception was encountered then the 500 internal server error
+			else if(MovieList.get(0).equals("500 INTERNAL SERVER ERROR"))
+				sendString(request, "500 INTERNAL SERVER ERROR", 500);
+			
+			else {
+				
+				//adding the list of movies
+				jsonFinalResult.put("MovieList", MovieList);
+				
+				//the result is been sent along with the 200 code
+				sendString(request, jsonFinalResult.toString(), 200);
+			}
+		}
+		
+		//if the wrongly formatted or the incorrect information was provided then 400 bad request
+		else {
+			sendString(request, "400 BAD REQUEST", 400);
+		}
+	}
+		
 	private void sendString(HttpExchange request, String data, int restCode) throws IOException {
 		// TODO Auto-generated method stub
 		request.sendResponseHeaders(restCode, data.length());
