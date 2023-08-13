@@ -54,6 +54,7 @@ addRelationshipFail404
 
     Should Be Equal As Strings      ${resp.content}     404 NOT FOUND
 
+####### Get Methods ######
 
 getActorPass
     ${headers}=     Create Dictionary       Content-Type=application/json
@@ -140,7 +141,7 @@ hasRelationshipFail404
 
     Should Be Equal As Strings      ${resp.content}     404 NOT FOUND
 
-#### Filling the Database
+####### Filling the Database  ########
 
 addActor2
     ${headers}=     Create Dictionary       Content-Type=application/json
@@ -225,7 +226,7 @@ addRelationship6
 
     Should Be Equal As Strings      ${resp.content}     200 OK
 
-########
+########  Database values added which were required to compute Bacon Number ########
 
 computeBaconNumberPass
     ${headers}=  Create Dictionary   Content-Type=application/json
@@ -275,7 +276,7 @@ computeBaconPathFail404
     Should Be Equal As Strings      ${resp.content}     404 NOT FOUND
 
 
-##### New feature Testing 
+########### New feature Testing    ##########
 
 addYearPass
     ${headers}=     Create Dictionary       Content-Type=application/json
@@ -370,3 +371,7 @@ getMoviesOfYearFail404
     ${resp}=     GET On Session  localhost   /api/v1/getMoviesOfYear    json=${params}  headers=${headers}  expected_status=404
 
     Should Be Equal As Strings      ${resp.content}     404 NOT FOUND
+
+
+
+
