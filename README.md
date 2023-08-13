@@ -12,25 +12,28 @@ Testing: Robot Framework
 
 # Use Case
 
-Stores the Actors, movies and the released year of movie in the database. Computes Kevin Bacon number and returns shortest path to Kevin Bacon as well.
+Stores the Actors, movies, and the release year of the movie in the database. Computes Kevin Bacon's number and returns the shortest path to Kevin Bacon as well.
 
 
-# Requirements ?
+# Requirements?
 
 #1 Java SDK 1.8
+
 #2 min. Python 3.0
-#3 robot framework and request installed through pip
+
+#3 Robot framework and request installed through pip
 
 
 # How to Run?
 
-Create a Neo4J database with the username : neo4j and password: 12345678
+Step 1: Create a Neo4J database with the username: neo4j and password: 12345678
 
-Run the database on the local server at port 7687.
+Step 2: Run the database on the local server at port 7687.
 
-Run App.java  --> (wait for the output: Server started on port 8080)
+Step 3: Run App.java  --> (wait for the output: Server started on port 8080)
 
-#Option 1: Run the localhost:8080/api/v1/{methodsname} on post man 
+Step 4:
+#Option 1: Run the localhost:8080/api/v1/{methodsname} on postman 
 
 #Option 2: Open the terminal -> go to the project directory, type : robot testproject.robot
 
