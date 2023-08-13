@@ -13,6 +13,9 @@ public class Handler implements HttpHandler {
 		this.neo4JObject = new Neo4Jdatabase();
 	}
 
+	/**
+	 * This method just takes the request which is HttpExchange and checks if its a GET or PUT request
+	 */
 	@Override
 	public void handle(HttpExchange request) throws IOException {
 		// TODO Auto-generated method stub
@@ -37,6 +40,11 @@ public class Handler implements HttpHandler {
         }
 	}
 
+	/**
+	 * This method handles the PUT request and passes the api request to its particular method which handles it and does the functionality accordingly 
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 */
 	private void handlePut(HttpExchange request) throws IOException {
 		// TODO Auto-generated method stub
 		URI uri = request.getRequestURI();
@@ -86,6 +94,13 @@ public class Handler implements HttpHandler {
         }
 	}
 
+	
+	/**
+	 * This method handles the GET request and passes the api request to its particular method which handles it and does the functionality accordingly
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occured with the json object
+	 */
 	private void handleGet(HttpExchange request) throws IOException, JSONException {
 		// TODO Auto-generated method stub
 		URI uri = request.getRequestURI();
@@ -125,6 +140,13 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
+	/**
+	 * This methods handles the get request which is about the actor and returns the name, id and list of movies related to the actor along with the code responses
+	 * The other code responses are sent according to what happens to the request
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occurred with the json object
+	 */
 	private void getActorHandler(HttpExchange request) throws IOException, JSONException{
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
@@ -174,6 +196,13 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
+	/**
+	 * This method handles the get request about the movie which returns the movie id, name and the list of actors who worked in that movie along with the code responses 
+	 * The other code responses are sent according to what happens to the request
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occured with the json object
+	 */
 	private void getMovieHandler(HttpExchange request) throws IOException, JSONException{
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
@@ -232,6 +261,14 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
+	/**
+	 * This method handles the get request about the relationship which checks if there is a relation between the given actor and the movie and 
+	 * then returns the id of actor and movie along with the code responses with the true or false depending if the relationship exists or not. 
+	 * The other code responses are sent according to what happens to the request
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occurred with the json object
+	 */
 	private void hasRelationshipHandler(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
@@ -290,6 +327,12 @@ public class Handler implements HttpHandler {
 				
 	}
 	
+	/**
+	 * This method handles the put request about the actor and adds the actor name and id to the database if it does not already exists and provides the code responses according to what happens to the request
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occurred with the json object
+	 */
 	private void addActorHandler(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
@@ -331,6 +374,12 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
+	/**
+	 * This method handles the put request to add the movie name and id to the database if it does not exists already and also provides the code responses according to what happens to the request 
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occurred with the json object
+	 */
 	private void addMovieHandler(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
@@ -372,6 +421,13 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
+	/**
+	 * This mehod handles the put request for adding the relationship between the movie and the actor if it does not already exists and it only adds the relationship if the particular 
+	 * actor and the movie is present in the database. This methods then provides the code responses according to what happens to the request
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occurred with the json object
+	 */
 	private void addRelationshipHandler(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
@@ -418,6 +474,13 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
+	/**
+	 * This methods handles the get request for getting the Bacon Number of the particular actor. It also checks that the actor for which we want the bacon number that actor exists or not.
+	 * If the actor has a bacon number then it provides the number along with the code response otherwise just the code response according  to what happens to the request
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occurred with the json object
+	 */
 	private void computeBaconNumberHandler(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
@@ -469,6 +532,13 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
+	/**
+	 * This method handles the get request to compute the bacon path of the particular actor. It also checks if the actor exists in the database or not. If the actor exists then 
+	 * the bacon path is provided along with the code response otherwise just the code response is provided according to what happens to the request
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occurred with the json object
+	 */
 	private void computeBaconPathHandler(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
 		String stringBody = Utils.getBody(request);
@@ -513,7 +583,12 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
-	
+	/**
+	 * This method handles the put request for adding the year to the database if it is not already present in the database. It also provides the particular code response according to what happens to the request
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occurred with the json object
+	 */
 	//the request of put related to year is handled here
 	private void addYearHandler(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
@@ -554,6 +629,14 @@ public class Handler implements HttpHandler {
 		}
 	}
 	
+	
+	/**
+	 * This method handles the PUT request for adding the relationship between the year and the movie if both of them already exists in the database. The code responses are provided according
+	 * what happens to the request
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occurred with the json object
+	 */
 	//the request of put related to the relationship of year with movie is handled here
 	private void addRelationOfYear(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
@@ -602,6 +685,13 @@ public class Handler implements HttpHandler {
 	}
 
 	
+	/**
+	 * This method handles the GET request for checking that is there any relationship between the particular movie and the year. if yes, then the movie id, year and true along 
+	 * with the code response is provided otherwise the code response is provided according to what happens to the request
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occurred with the json object
+	 */
 	//This method is to handle the request where we want to see if a particular movie is "Released_IN" particular year 
 	private void hasRelationshipOfYearHandler(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
@@ -662,6 +752,13 @@ public class Handler implements HttpHandler {
 	}
 	
 
+	/**
+	 * This method handles the GET request for getting the list of movies which were released in the particular year if the year is present in the database. if yes, then the 
+	 * list of movies is provided along with the code response otherwise code responses are provided according to what happens to the request
+	 * @param request the actual request which is coming as the url of the type HttpExchange
+	 * @throws IOException exception is thrown which prints the stack trace and gives the 500 internal error if the api were something else
+	 * @throws JSONException is thrown if some issues are occurred with the json object
+	 */
 	//this method is to get the list of movies which were released in the particular year 
 	private void getMovieList(HttpExchange request) throws IOException, JSONException {
 		//Converting request to String
@@ -707,6 +804,14 @@ public class Handler implements HttpHandler {
 		}
 	}
 		
+	
+	/**
+	 * This method sends the body which is obtained from the particular methods
+	 * @param request request the actual request which is coming as the url of the type HttpExchange
+	 * @param data this is of type string which contains the actual answer to be outputed 
+	 * @param restCode this is the code response which was got from the particular methods. and this is of type int
+	 * @throws IOException exception is thrown which prints the stack trace of the exception parent class
+	 */
 	private void sendString(HttpExchange request, String data, int restCode) throws IOException {
 		// TODO Auto-generated method stub
 		request.sendResponseHeaders(restCode, data.length());
