@@ -18,7 +18,7 @@ Expected Response:-
 500 INTERNAL SERVER ERROR - If save or add was unsuccessful (Java Exception Thrown) which is related to the database
 
 Moreover, you have to add the relationship between a movie and the year which means that the movie was "RELEASED_IN" a particular year
-PUT /api/v1/addYearToMoive
+PUT /api/v1/addYearToMovie
 Description:- This endpoint is to add an "RELEASED_IN" relationship between an year and a movie in the database
 Body Parameter:-
 year: String 
@@ -49,7 +49,7 @@ With this new feature you can you can provide the year and all the movies that w
 GET /api/v1/getMoviesOfYear
 Description:- This endpoint returns the list of movies which were released in the particular year
 Query Parameters:-
-movieId: String
+year: String
 Response:-
 MovieList: List of all the movies which were released in the particular year
 	name: String

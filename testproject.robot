@@ -76,6 +76,14 @@ getActorFail
     #${json}=   Get Text   ${resp.json()}
     Should Be Equal As Strings      ${resp.content}     404 NOT FOUND
 
+
+getActorFail404
+    ${headers}=  Create Dictionary   Content-Type=application/json
+    ${params}=   Create Dictionary   actorId=u94580   
+    ${resp}=     GET On Session  localhost   /api/v1/getActor    json=${params}  headers=${headers}  expected_status=404
+
+    Should Be Equal As Strings      ${resp.content}     404 NOT FOUND
+
 getMoviePass
     ${headers}=  Create Dictionary   Content-Type=application/json
     ${params}=   Create Dictionary   movieId=nm200
@@ -95,6 +103,15 @@ getMovieFail
     ${resp}=     GET On Session  localhost   /api/v1/getMovie    json=${params}  headers=${headers}  expected_status=400
 
     Should Be Equal As Strings      ${resp.content}     400 BAD REQUEST
+
+
+getMovieFail404
+    ${headers}=  Create Dictionary   Content-Type=application/json
+    ${params}=   Create Dictionary   movieId=u94580   
+    ${resp}=     GET On Session  localhost   /api/v1/getMovie   json=${params}  headers=${headers}  expected_status=404
+
+    Should Be Equal As Strings      ${resp.content}     404 NOT FOUND
+
 
 hasRelationshipPass
     ${headers}=  Create Dictionary   Content-Type=application/json
@@ -237,7 +254,7 @@ computeBaconPathPass
     ${headers}=  Create Dictionary   Content-Type=application/json
     ${params}=   Create Dictionary   actorId=nm105   
     ${resp}=     GET On Session  localhost   /api/v1/computeBaconPath    json=${params}  headers=${headers}  expected_status=200
-    
+    #Log to console    ${params}
     ${json}=   Set Variable   ${resp.json()}
     ${baconPaths}=  Create List   nm105   nm203   nm103   nm201   nm104   nm200   nm0000102
     Lists Should be Equal   ${json['baconPath']}  ${baconPaths}
@@ -258,6 +275,98 @@ computeBaconPathFail404
     Should Be Equal As Strings      ${resp.content}     404 NOT FOUND
 
 
+##### New feature Testing 
+
+addYearPass
+    ${headers}=     Create Dictionary       Content-Type=application/json
+    ${params}=      Create Dictionary       year=2023
+    ${resp}=        PUT On Session      localhost       /api/v1/addYear        json=${params}      headers=${headers}      expected_status=200
+    Should Be Equal As Strings      ${resp.content}     200 OK
+    
+addYearFail
+    ${headers}=     Create Dictionary       Content-Type=application/json
+    ${params}=      Create Dictionary       year=2023
+    ${resp}=        PUT On Session      localhost       /api/v1/addYear        json=${params}      headers=${headers}      expected_status=400
+    Should Be Equal As Strings      ${resp.content}     400 BAD REQUEST
+
+addYearToMoviePass
+    ${headers}=     Create Dictionary       Content-Type=application/json
+    ${params}=      Create Dictionary       year=2023    movieId=nm202
+    ${resp}=        PUT On Session      localhost       /api/v1/addYearToMovie        json=${params}      headers=${headers}      expected_status=200
+    Should Be Equal As Strings      ${resp.content}     200 OK
+
+addYearToMoviePass2
+    ${headers}=     Create Dictionary       Content-Type=application/json
+    ${params}=      Create Dictionary       year=2023    movieId=nm203
+    ${resp}=        PUT On Session      localhost       /api/v1/addYearToMovie       json=${params}      headers=${headers}      expected_status=200
+    Should Be Equal As Strings      ${resp.content}     200 OK
+
+
+addYearToMovieFail
+    ${headers}=     Create Dictionary       Content-Type=application/json
+    ${params}=      Create Dictionary        year=2023   
+    ${resp}=        PUT On Session      localhost       /api/v1/addYearToMovie       json=${params}      headers=${headers}      expected_status=400
+    Should Be Equal As Strings      ${resp.content}     400 BAD REQUEST
+
+
+addYearToMovieFail404
+    ${headers}=     Create Dictionary       Content-Type=application/json
+    ${params}=      Create Dictionary        year=2020     movieId=nm900   
+    ${resp}=        PUT On Session      localhost       /api/v1/addYearToMovie       json=${params}      headers=${headers}      expected_status=404
+    Should Be Equal As Strings      ${resp.content}     404 NOT FOUND
+
+
+hasRelationshipBtwMovieYearPass
+    ${headers}=  Create Dictionary   Content-Type=application/json
+    ${params}=   Create Dictionary   year=2023     movieId=nm202      
+    ${resp}=     GET On Session  localhost   /api/v1/hasRelationshipBtwMovieYear    json=${params}  headers=${headers}  expected_status=200
+
+   
+    ${json}=   Set Variable   ${resp.json()}
+   
+    Should Be Equal As Strings  ${json['year']}  2023
+    Should Be Equal as Strings  ${json['movieId']}  nm202 
+    Should Be true      ${json['hasRelationship']}    ${true}
+   
+
+
+hasRelationshipBtwMovieYearFail404
+    ${headers}=  Create Dictionary   Content-Type=application/json
+    ${params}=   Create Dictionary   movieId=nm200      year=2079   
+    ${resp}=     GET On Session  localhost   /api/v1/hasRelationshipBtwMovieYear    json=${params}  headers=${headers}  expected_status=404
+
+    Should Be Equal As Strings      ${resp.content}     404 NOT FOUND
+
+
+hasRelationshipBtwMovieYearFail400
+    ${headers}=  Create Dictionary   Content-Type=application/json
+    ${params}=   Create Dictionary   movieId=nm200    
+    ${resp}=     GET On Session  localhost   /api/v1/hasRelationshipBtwMovieYear    json=${params}  headers=${headers}  expected_status=400
+
+    Should Be Equal As Strings      ${resp.content}     400 BAD REQUEST
 
 
 
+getMoviesOfYearPass
+    ${headers}=  Create Dictionary   Content-Type=application/json
+    ${params}=   Create Dictionary   year=2023
+    ${resp}=     GET On Session  localhost   /api/v1/getMoviesOfYear    json=${params}  headers=${headers}  expected_status=200
+
+    ${json}=   Set Variable   ${resp.json()}
+    
+    ${movieList}=   Create List   nm202     nm203
+    Lists Should be Equal   ${json['MovieList']}  ${movieList}
+
+getMoviesOfYearFail
+    ${headers}=  Create Dictionary   Content-Type=application/json
+    ${params}=   Create Dictionary   
+    ${resp}=     GET On Session  localhost   /api/v1/getMoviesOfYear    json=${params}  headers=${headers}  expected_status=400
+
+    Should Be Equal As Strings      ${resp.content}     400 BAD REQUEST
+
+getMoviesOfYearFail404
+    ${headers}=  Create Dictionary   Content-Type=application/json
+    ${params}=   Create Dictionary   year=2025
+    ${resp}=     GET On Session  localhost   /api/v1/getMoviesOfYear    json=${params}  headers=${headers}  expected_status=404
+
+    Should Be Equal As Strings      ${resp.content}     404 NOT FOUND
