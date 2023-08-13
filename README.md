@@ -1,12 +1,13 @@
 # Project
+
  EECS 3311 - Software Design Pattern
 
 # Implementation
 
 
-## Database: Neo4J Database (NoSQL/Graph)
-## Server: Java (sun.net)
-## Testing: Robot Framework
+Database: Neo4J Database (NoSQL/Graph)
+Server: Java (sun.net)
+Testing: Robot Framework
 
 
 # Use Case
@@ -34,7 +35,8 @@ Run App.java  --> (wait for the output: Server started on port 8080)
 #Option 2: Open the terminal -> go to the project directory, type : robot testproject.robot
 
 
-# Version: 1.0.0
+# Version
+1.0.0
 
 
 
