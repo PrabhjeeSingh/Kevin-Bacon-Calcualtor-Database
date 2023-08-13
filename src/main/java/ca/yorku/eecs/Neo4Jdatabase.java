@@ -320,7 +320,7 @@ public class Neo4Jdatabase {
 		 
 		try(Session session = driver.session()){
 			Transaction transaction = session.beginTransaction();
-			String query = "MATCH path = shortestPath((kb: actor {id: 'nm0000102'})-[*]-(a: actor {id: '" + id +"'})) RETURN nodes(path) AS path";
+			String query = "MATCH path = shortestPath((a: actor {id: '" + id + "'})-[*]-(kb: actor {id: 'nm0000102'})) RETURN nodes(path) AS path";
 			StatementResult result = transaction.run(query);
 			
 			//List<Object> pathObject = result.next().get("path").asList();
