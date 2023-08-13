@@ -212,9 +212,10 @@ public class Neo4Jdatabase {
 			Transaction transaction = session.beginTransaction();
 			String query =  "MATCH (a: actor {id: '"+ actorId + "'})-[:ACTED_IN]->(m: movie {id: '" + movieId + "'}) RETURN EXISTS((a)-[:ACTED_IN]->(m));";
 			StatementResult result = transaction.run(query);
-			
-			boolean isRelationshipPresent = result.next().get(0).asBoolean();
-			
+			boolean isRelationshipPresent=false;
+			if(result.hasNext()){
+			isRelationshipPresent = result.next().get(0).asBoolean();
+			}
 			transaction.success();
 			transaction.close();
 			session.close();
@@ -465,8 +466,10 @@ public class Neo4Jdatabase {
 			String query =  "MATCH (m: movie {id: '"+ id + "'})-[:RELEASED_IN]->(y: year {year: '" + year + "'}) RETURN EXISTS((m)-[:RELEASED_IN]->(y));";
 			StatementResult result = transaction.run(query);
 			
-			boolean isRelationshipPresent = result.next().get(0).asBoolean();
-			
+			boolean isRelationshipPresent=false;
+			if(result.hasNext()){
+				isRelationshipPresent = result.next().get(0).asBoolean();
+			}
 			transaction.success();
 			transaction.close();
 			session.close();
