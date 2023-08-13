@@ -33,9 +33,10 @@ Step 2: Run the database on the local server at port 7687.
 Step 3: Run App.java  --> (wait for the output: Server started on port 8080)
 
 Step 4:
-#Option 1: Run the localhost:8080/api/v1/{methodsname} on postman 
 
-#Option 2: Open the terminal -> go to the project directory, type : robot testproject.robot
+&nbsp;#Option 1: Run the localhost:8080/api/v1/{methodsname} on postman 
+    
+&nbsp;#Option 2: Open the terminal -> go to the project directory, type: #robot testproject.robot
 
 
 # Version
